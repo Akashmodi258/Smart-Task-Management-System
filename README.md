@@ -6,9 +6,9 @@ A full-stack task management web app built with **Flask**, **PostgreSQL**, **Pan
 
 | Layer | Technology |
 |---|---|
-| Backend | Python 3.10+, Flask 3, Flask-Login |
-| Database | PostgreSQL + Flask-SQLAlchemy |
-| Real-time | Flask-SocketIO + eventlet |
+| Backend | Python, Flask |
+| Database | PostgreSQL |
+| Real-time | Websocket |
 | Analytics | Pandas, NumPy |
 | Frontend | HTML5, CSS3, Vanilla JS |
 
