@@ -1,4 +1,4 @@
-# ⬡ TaskForge — Smart Task Management System
+# ⬡ TaskForge Assignment — Smart Task Management System
 
 A full-stack task management web app built with **Flask**, **PostgreSQL**, **Pandas & NumPy**, and **WebSockets**.
 
