@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — TaskForge{% endblock %}
+
+{% block content %}
+<div class="app-layout">
+
+  <!-- Mobile header bar -->
+  <header class="mobile-header">
+    <button class="hamburger" id="drawerToggle" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="auth-brand" style="margin:0">
+      <span class="brand-icon">⬡</span>
+      <span class="brand-name">TaskForge</span>
+    </div>
+    <button class="btn btn--primary btn--sm" onclick="openModal('create')">+ Task</button>
+  </header>
+
+  <!-- Drawer overlay -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+  <!-- Sidebar / Drawer -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__brand">
+      <span class="brand-icon">⬡</span>
+      <span class="brand-name">TaskForge</span>
+      <button class="drawer-close" id="drawerClose" onclick="closeDrawer()" aria-label="Close menu">✕</button>
+    </div>
+
+    <nav class="sidebar__nav">
+      <button class="nav-item nav-item--active" data-view="tasks" onclick="switchView('tasks')">
+        <span class="nav-icon">▦</span> Tasks
+      </button>
+      <button class="nav-item" data-view="analytics" onclick="switchView('analytics')">
+        <span class="nav-icon">◈</span> Analytics
+      </button>
+    </nav>
+
+    <div class="sidebar__filters" id="filterPanel">
+      <p class="filter-label">Filter by Status</p>
+      <button class="filter-chip filter-chip--active" data-status="">All</button>
+      <button class="filter-chip" data-status="pending">Pending</button>
+      <button class="filter-chip" data-status="in_progress">In Progress</button>
+      <button class="filter-chip" data-status="completed">Completed</button>
+      <button class="filter-chip" data-status="cancelled">Cancelled</button>
+
+      <p class="filter-label" style="margin-top:1.2rem">Filter by Priority</p>
+      <button class="filter-chip" data-priority="">All</button>
+      <button class="filter-chip" data-priority="critical">Critical</button>
+      <button class="filter-chip" data-priority="high">High</button>
+      <button class="filter-chip" data-priority="medium">Medium</button>
+      <button class="filter-chip" data-priority="low">Low</button>
+    </div>
+
+    <div class="sidebar__bottom">
+      <div class="user-info">
+        <span class="user-avatar">{{ user.username[0].upper() }}</span>
+        <span class="user-name">{{ user.username }}</span>
+      </div>
+      <a href="{{ url_for('auth.logout') }}" class="logout-btn">⏻ Logout</a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Tasks View -->
+    <section id="view-tasks" class="view view--active">
+      <header class="view-header">
+        <div>
+          <h1 class="view-title">My Tasks</h1>
+          <p class="view-subtitle">Manage everything in one place</p>
+        </div>
+        <button class="btn btn--primary desktop-only" onclick="openModal('create')">
+          + New Task
+        </button>
+      </header>
+
+      <div class="search-bar">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search tasks…" oninput="debounceSearch()" />
+      </div>
+
+      <div class="live-badge" id="liveBadge">
+        <span class="live-dot"></span> Live updates active
+      </div>
+
+      <div id="taskList" class="task-grid">
+        <div class="loading-state">Loading tasks…</div>
+      </div>
+    </section>
+
+    <!-- Analytics View -->
+    <section id="view-analytics" class="view">
+      <header class="view-header">
+        <div>
+          <h1 class="view-title">Analytics</h1>
+          <p class="view-subtitle">Powered by Pandas &amp; NumPy</p>
+        </div>
+        <button class="btn btn--secondary" onclick="loadAnalytics()">↻ Refresh</button>
+      </header>
+      <div id="analyticsContent">
+        <div class="loading-state">Computing analytics…</div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Task Modal -->
+<div id="taskModal" class="modal hidden">
+  <div class="modal__backdrop" onclick="closeModal()"></div>
+  <div class="modal__card">
+    <div class="modal__header">
+      <h2 id="modalTitle" class="modal__title">New Task</h2>
+      <button class="modal__close" onclick="closeModal()">✕</button>
+    </div>
+    <form id="taskForm" class="modal__body">
+      <input type="hidden" id="taskId" />
+      <div class="field">
+        <label class="field__label">Title *</label>
+        <input type="text" id="taskTitle" class="field__input" placeholder="What needs to be done?" required />
+      </div>
+      <div class="field">
+        <label class="field__label">Description</label>
+        <textarea id="taskDesc" class="field__input field__textarea" placeholder="Add details…" rows="3"></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field__label">Priority</label>
+          <select id="taskPriority" class="field__input field__select">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field__label">Status</label>
+          <select id="taskStatus" class="field__input field__select">
+            <option value="pending" selected>Pending</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field__label">Due Date</label>
+        <input type="datetime-local" id="taskDueDate" class="field__input" />
+      </div>
+      <div id="modalError" class="form-error hidden"></div>
+      <div class="modal__actions">
+        <button type="button" class="btn btn--secondary" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="btn btn--primary" id="modalSubmit">
+          <span>Save Task</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

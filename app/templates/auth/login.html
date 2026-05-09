@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Login — TaskForge{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="auth-brand">
+    <span class="brand-icon">⬡</span>
+    <span class="brand-name">TaskForge</span>
+  </div>
+
+  <div class="auth-card">
+    <h1 class="auth-title">Sign In</h1>
+    <p class="auth-subtitle">Pick up where you left off</p>
+
+    <form id="loginForm" class="auth-form">
+      <div class="field">
+        <label class="field__label">Email</label>
+        <input type="email" id="email" name="email" class="field__input" placeholder="you@example.com" required autocomplete="email" />
+      </div>
+      <div class="field">
+        <label class="field__label">Password</label>
+        <input type="password" id="password" name="password" class="field__input" placeholder="••••••••" required autocomplete="current-password" />
+      </div>
+      <div class="field field--inline">
+        <label class="checkbox-label">
+          <input type="checkbox" id="remember" name="remember" />
+          <span>Remember me</span>
+        </label>
+      </div>
+      <div id="formError" class="form-error hidden"></div>
+      <button type="submit" class="btn btn--primary btn--full" id="submitBtn">
+        <span>Sign In</span>
+      </button>
+    </form>
+
+    <p class="auth-switch">
+      No account? <a href="{{ url_for('auth.register') }}">Register here</a>
+    </p>
+  </div>
+</div>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  const err = document.getElementById('formError');
+  btn.disabled = true;
+  btn.querySelector('span').textContent = 'Signing in…';
+  err.classList.add('hidden');
+
+  const res = await fetch('/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email: document.getElementById('email').value,
+      password: document.getElementById('password').value,
+      remember: document.getElementById('remember').checked,
+    }),
+  });
+  const data = await res.json();
+
+  if (data.success) {
+    window.location.href = '/';
+  } else {
+    err.textContent = data.message;
+    err.classList.remove('hidden');
+    btn.disabled = false;
+    btn.querySelector('span').textContent = 'Sign In';
+  }
+});
+</script>
+{% endblock %}
