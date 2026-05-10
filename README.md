@@ -182,6 +182,6 @@ Open your browser at: **http://localhost:5000**
 
 ## Submission
 
-- GitHub Repository: *(add your link here)*
+
 - Database Schema: `schema.sql`
-- Demo Video: *(add your link here)*
+- Demo Video: https://drive.google.com/file/d/1DbNWANcvEkZlMnptxodWSwjNLsqeYWkj/view?usp=sharing
